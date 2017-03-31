@@ -69,15 +69,15 @@ $(document).ready( function() {
                "messageType": "LOAD_REQUEST"
             };
             console.log("Load request"); // for testing
-            console.log("Requested frame size: 825x825px"); // for testing
+            console.log("Requested frame size: 824x824px"); // for testing
             break;
 
          case MessageType.SETTINGS:
             message =  {
                "messageType": "SETTING",
                "options": {
-                  "width": 825, // in pixels
-                  "height": 825 // in pixels
+                  "width": 824, // in pixels
+                  "height": 824 // in pixels
                }
             };
             break;
