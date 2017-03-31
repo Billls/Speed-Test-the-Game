@@ -1,10 +1,166 @@
-<!DOCTYPE html>
-<html>
-   <head>
-      <meta charset="utf-8" http-equiv="refresh" content="0; url=https://billls.github.io/Speed-Test-the-Game/speed_test_the_game.html" />
-      <title>index</title>
-   </head>
-   <body>
+<!Doctype html>
+<html lang="en">
 
-   </body>
+<head>
+   <title>Speed Test the Game</title>
+   <meta charset="utf-8"/>
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+   <!-- jQuery & jQuery UI -->
+   <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+   <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+   <!-- Bootstrap -->
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+   <link rel="stylesheet" type="text/css"
+          href="https://fonts.googleapis.com/css?family=Aldrich">
+
+   <script src="sevenSeg.js"></script> <!-- use permitted by MIT license, more details in the file -->
+
+   <script src="speed_test_the_game.js"></script>
+   <link rel="stylesheet" type="text/css" href="speed_test_the_game.css">
+</head>
+
+<body>
+   <div class="container"> <!-- responsive Bootstrap container -->
+      <h1><span id="gameTitle">Speed Test the Game </span></h1>
+
+      <div id="scoreBox">
+         <h3><span id="scoreHeader">Score: </span></h3>
+         <div id="score"></div><br>
+      </div>
+
+      <div class="buttons text-center">
+
+         <div class="buttonBackground">
+            <button type="button" id="button1">V</button>
+         </div>
+
+         <div class="buttonBackground">
+            <button type="button" id="button2">B</button>
+         </div>
+
+         <div class="buttonBackground">
+            <button type="button" id="button3">N</button>
+         </div>
+
+         <div class="buttonBackground">
+            <button type="button" id="button4">M</button>
+         </div>
+
+      </div><br>
+
+      <div class="row">
+         <div class="col-xs-7">
+            <button type="button" class="menuButtons" id="buttonSettings" data-toggle="collapse" data-target="#settings">Settings</button>
+            <button type="button" class="menuButtons" id="buttonHighscores" data-toggle="collapse" data-target="#highscores">High Scores</button>
+            <button type="button" class="menuButtons" id="buttonStart">Start (K)</button>
+
+            <form class="collapse" id="settings">
+               <div class="form-group col-xs-12" id="textFields"><br>
+
+                  <label for="reassign1" class="control-label">Button 1:</label>
+                  <input type="text" class="form-control" id="reassign1" placeholder="V" maxlength="1"><br>
+
+                  <label for="reassign2" class="control-label">Button 2:</label>
+                  <input type="text" class="form-control" id="reassign2" placeholder="B" maxlength="1"><br>
+
+                  <label for="reassign3" class="control-label">Button 3:</label>
+                  <input type="text" class="form-control" id="reassign3" placeholder="N" maxlength="1"><br>
+
+                  <label for="reassign4" class="control-label">Button 4:</label>
+                  <input type="text" class="form-control" id="reassign4" placeholder="M" maxlength="1"><br>
+
+                  <label for="reassign5" class="control-label">Start button:</label>
+                  <input type="text" class="form-control" id="reassign5" placeholder="K" maxlength="1">
+               </div>
+               <div class="form-group">
+                  <input type="button" id="buttonSave" value="    Save    ">
+                  <input type="reset" id="buttonReset" value="Reset changes">
+                  <input type="button" id="buttonRestore" value="Restore defaults">
+               </div>
+            </form>
+
+            <div class="collapse" id="highscores">
+               <h2>Personal High Scores <span id="lenny">( ͡° ͜ʖ ͡°)</span></h2>
+               <table class="table table-condensed">
+                  <thead>
+                     <tr>
+                        <th>Rank</th>
+                        <th>Score</th>
+                        <th>Time and Date</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr class="row1">
+                        <td>1st</td>
+                        <td id="row1cell1">-</td>
+                        <td id="row1cell2">--:--:--</td>
+                     </tr>
+                     <tr class="row2">
+                        <td>2nd</td>
+                        <td id="row2cell1">-</td>
+                        <td id="row2cell2">--:--:--</td>
+                     </tr>
+                     <tr class="row3">
+                        <td>3rd</td>
+                        <td id="row3cell1">-</td>
+                        <td id="row3cell2">--:--:--</td>
+                     </tr>
+                     <tr class="row4">
+                        <td>4th</td>
+                        <td id="row4cell1">-</td>
+                        <td id="row4cell2">--:--:--</td>
+                     </tr>
+                     <tr class="row5">
+                        <td>5th</td>
+                        <td id="row5cell1">-</td>
+                        <td id="row5cell2">--:--:--</td>
+                     </tr>
+                     <tr class="row6">
+                        <td>6th</td>
+                        <td id="row6cell1">-</td>
+                        <td id="row6cell2">--:--:--</td>
+                     </tr>
+                     <tr class="row7">
+                        <td>7th</td>
+                        <td id="row7cell1">-</td>
+                        <td id="row7cell2">--:--:--</td>
+                     </tr>
+                     <tr class="row8">
+                        <td>8th</td>
+                        <td id="row8cell1">-</td>
+                        <td id="row8cell2">--:--:--</td>
+                     </tr>
+                     <tr class="row9">
+                        <td>9th</td>
+                        <td id="row9cell1">-</td>
+                        <td id="row9cell2">--:--:--</td>
+                     </tr>
+                     <tr class="row10">
+                        <td>10th</td>
+                        <td id="row10cell1">-</td>
+                        <td id="row10cell2">--:--:--</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
+         </div>
+
+         <div class="col-xs-5 collapse">
+            <p class="well" id="description">
+               <span class="bolded">Background: </span>Speed Test the Game is based on a popular Finnish reaction game from late 80's / early 90's. It became famous from the TV game show Speden Spelit.<br><br>
+
+               <span class="bolded">Instructions: </span>Push-buttons light up at an increasing speed. Press them following the correct sequence. When you make a mistake the game ends.<br><br>
+
+               <span class="bolded">Controls: </span>mouse/keyboard (configurable for keys A-Z and 0-9)
+            </p>
+         </div>
+      </div>
+
+   </div>
+</body>
+
 </html>
