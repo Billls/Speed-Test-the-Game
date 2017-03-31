@@ -1,0 +1,119 @@
+.buttons button {
+   width: 100px;
+   height: 100px;
+   border-radius: 100px;
+   box-shadow: 0 0 3px gray;
+   opacity: 0.5;
+}
+
+.buttons button:focus {
+   outline: 0;
+}
+
+.container {
+   width: 820px;
+   height: 820px;
+
+   background-color: #A9B7C0;
+   border-radius: 20px;
+   border: 2px solid black;
+   font-family: 'Aldrich';
+}
+
+h1, h3 {
+   text-align: center;
+}
+
+h2 {
+   font-size: 27px;
+   margin-bottom: 12px;
+}
+
+#lenny {
+   font-size: 26px;
+}
+
+#gameTitle {
+   background-color: #CDCDCD;
+   border-radius: 5px;
+   text-transform: uppercase;
+   font-style: italic;
+   font-weight: bold;
+   padding: 3px;
+   white-space: pre;
+   border: 3px solid black;
+
+}
+
+#scoreHeader {
+   background-color: black;
+   font-style: italic;
+   letter-spacing: 5px;
+   color: #320000;
+
+   padding-top: 1px;
+   padding-bottom: 20px;
+   padding-left: 20px;
+   padding-right: 20px;
+   border-radius: 5px;
+}
+
+#scoreBox {
+   width: 150px;
+   margin: auto;
+}
+
+.buttonBackground {
+   display: inline-block;
+   width: 100px;
+   height: 100px;
+   border-radius: 100px;
+   background-color: white;
+}
+
+#description {
+   background-color: #E9E9E9;
+   border-color: black;
+}
+
+.col-xs-5 {
+   padding-top: 100px;
+}
+
+#button1 {
+   background-color: green;
+}
+
+#button2 {
+   background-color: yellow;
+}
+
+#button3 {
+   background-color: orange;
+}
+
+#button4 {
+   background-color: red;
+}
+
+.row {
+   padding-left: 15px;
+   padding-right: 15px;
+}
+
+#settings {
+   padding-top: 8px;
+}
+
+#textFields input {
+   text-transform: uppercase;
+}
+
+.bolded {
+   font-weight: bold;
+   font-size: 15px;
+}
+
+.highlighted {
+   font-weight: bold;
+}
