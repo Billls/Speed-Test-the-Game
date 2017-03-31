@@ -75,8 +75,8 @@ $(document).ready( function() {
             message =  {
                "messageType": "SETTING",
                "options": {
-                  "width": 820, // in pixels
-                  "height": 820 // in pixels
+                  "width": 840, // in pixels
+                  "height": 840 // in pixels
                }
             };
             break;
