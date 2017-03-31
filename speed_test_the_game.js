@@ -50,7 +50,7 @@ $(document).ready( function() {
                "messageType": "SCORE",
                "score": score
             };
-            //console.log("Submit: " + message.messageType + ", " + message.score); // for testing
+            console.log("Submit: " + message.messageType + ", " + message.score); // for testing
             break;
 
          case MessageType.SAVE:
@@ -61,14 +61,15 @@ $(document).ready( function() {
                   "highScores": scoresArr
                }
             };
-            //console.log("Save: " + JSON.stringify(message.gameState)); // for testing
+            console.log("Save: " + JSON.stringify(message.gameState)); // for testing
             break;
 
          case MessageType.LOAD_REQUEST:
             message = {
                "messageType": "LOAD_REQUEST"
             };
-            //console.log("Load request"); // for testing
+            console.log("Load request"); // for testing
+            console.log("Requested frame size: 840x840px"); // for testing
             break;
 
          case MessageType.SETTINGS:
