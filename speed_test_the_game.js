@@ -186,6 +186,7 @@ $(document).ready( function() {
             $(".buttons button").css("font-size", "inherit");
             $(".menuButtons").show();
             $(".col-xs-5.collapse").collapse("show");
+            $("#lenny").text("( ͡° ͜ʖ ͡°)");
             $("#highscores").collapse("show");
             $("#buttonHighscores").attr("disabled", true);
             updateHighScores();
