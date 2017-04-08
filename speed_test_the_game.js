@@ -87,13 +87,28 @@ $(document).ready( function() {
 
    window.addEventListener("message", function(event) {
       if(event.data.messageType === "LOAD") {
+
          key1 = event.data.gameState.keyConfig[0];
+         $("#reassign1").attr("placeholder", String.fromCharCode(key1));
+
          key2 = event.data.gameState.keyConfig[1];
+         $("#reassign2").attr("placeholder", String.fromCharCode(key2));
+
          key3 = event.data.gameState.keyConfig[2];
+         $("#reassign3").attr("placeholder", String.fromCharCode(key3));
+
          key4 = event.data.gameState.keyConfig[3];
+         $("#reassign4").attr("placeholder", String.fromCharCode(key4));
+
          key5 = event.data.gameState.keyConfig[4];
+         $("#reassign5").attr("placeholder", String.fromCharCode(key5));
 
          scoresArr = event.data.gameState.highScores;
+
+         for (var i = 0; i < scoresArr.length; i++) {
+            $("#row" + (i + 1) + "cell1").text(scoresArr[i].score);
+            $("#row" + (i + 1) + "cell2").text(scoresArr[i].date);
+         }
 
       } else if (event.data.messageType === "ERROR") {
          alert(event.data.info);
