@@ -90,18 +90,23 @@ $(document).ready( function() {
 
          key1 = event.data.gameState.keyConfig[0];
          $("#reassign1").attr("placeholder", String.fromCharCode(key1));
+         $("#button1").text(String.fromCharCode(key1));
 
          key2 = event.data.gameState.keyConfig[1];
          $("#reassign2").attr("placeholder", String.fromCharCode(key2));
+         $("#button2").text(String.fromCharCode(key2));
 
          key3 = event.data.gameState.keyConfig[2];
          $("#reassign3").attr("placeholder", String.fromCharCode(key3));
+         $("#button3").text(String.fromCharCode(key3));
 
          key4 = event.data.gameState.keyConfig[3];
          $("#reassign4").attr("placeholder", String.fromCharCode(key4));
+         $("#button4").text(String.fromCharCode(key4));
 
          key5 = event.data.gameState.keyConfig[4];
          $("#reassign5").attr("placeholder", String.fromCharCode(key5));
+         $("#buttonStart").text("Start (" + String.fromCharCode(key5) + ")");
 
          scoresArr = event.data.gameState.highScores;
 
