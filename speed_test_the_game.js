@@ -35,12 +35,14 @@ $(document).ready( function() {
    const MIN_INTERVAL = 300; // minimum interval in ms
    const INTERVAL_DECREASE_RATIO = 0.99;
 
+   // setting up the game at startup
    postMessage(MessageType.LOAD_REQUEST);
    $("#score").sevenSeg({ digits: 3, value: null });
    $("#highscores").collapse("show");
    $("#buttonHighscores").attr("disabled", true);
    $(".col-xs-5.collapse").collapse("show");
 
+   // sending messages to main window
    function postMessage(messageType) {
       var message;
 
@@ -50,7 +52,7 @@ $(document).ready( function() {
                "messageType": "SCORE",
                "score": score
             };
-            console.log("Submit: " + message.messageType + ", " + message.score); // for testing
+            // console.log("Submit: " + message.messageType + ", " + message.score); // for testing
             break;
 
          case MessageType.SAVE:
@@ -61,15 +63,15 @@ $(document).ready( function() {
                   "highScores": scoresArr
                }
             };
-            console.log("Save: " + JSON.stringify(message.gameState)); // for testing
+            // console.log("Save: " + JSON.stringify(message.gameState)); // for testing
             break;
 
          case MessageType.LOAD_REQUEST:
             message = {
                "messageType": "LOAD_REQUEST"
             };
-            console.log("Load request"); // for testing
-            console.log("Requested frame size: 824x824px"); // for testing
+            // console.log("Load request"); // for testing
+            // console.log("Requested frame size: 824x824px"); // for testing
             break;
 
          case MessageType.SETTINGS:
@@ -85,6 +87,7 @@ $(document).ready( function() {
       window.parent.postMessage(message, "*"); // common for all cases, hence outside the switch statement
    }
 
+   // loading the key layout and high scores from a saved game
    window.addEventListener("message", function(event) {
       if(event.data.messageType === "LOAD") {
 
@@ -110,17 +113,20 @@ $(document).ready( function() {
 
          scoresArr = event.data.gameState.highScores;
 
+         // populating the high score table
          for (var i = 0; i < scoresArr.length; i++) {
             $("#row" + (i + 1) + "cell1").text(scoresArr[i].score);
             $("#row" + (i + 1) + "cell2").text(scoresArr[i].date);
          }
 
+      // forwarding the error message to alert pop-up
       } else if (event.data.messageType === "ERROR") {
          alert(event.data.info);
       }
       postMessage(MessageType.SETTINGS);
    });
 
+   // loop that runs the game logic after start button has been pressed
    function gameLoop() {
       $(".buttons button").fadeTo(50, 0.5); // reset button opacity
 
@@ -154,6 +160,7 @@ $(document).ready( function() {
       }
    }
 
+   // the correct button was pressed -> game keeps running
    function gameProceed() {
       index += 1;
       score += 1;
@@ -170,6 +177,7 @@ $(document).ready( function() {
       }
    }
 
+   
    function updateHighScores() {
       var dateAndTime = new Date().toLocaleString("en-GB");
       scoresArr.push({score: score, date: dateAndTime});
