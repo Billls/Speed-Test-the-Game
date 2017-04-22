@@ -3,6 +3,7 @@
 $(document).ready( function() {
    "use strict";
 
+   // introducing global variables
    var score;
    var index;
    var sequence;
@@ -31,7 +32,7 @@ $(document).ready( function() {
    };
 
    // 820/300/0.99 -> max speed achieved on 100th (820*0.99^x = 300)
-   const MAX_INTERVAL = 820;
+   const MAX_INTERVAL = 820; // maximum interval in ms
    const MIN_INTERVAL = 300; // minimum interval in ms
    const INTERVAL_DECREASE_RATIO = 0.99;
 
@@ -126,23 +127,28 @@ $(document).ready( function() {
       postMessage(MessageType.SETTINGS);
    });
 
-   // loop that runs the game logic after start button has been pressed
+   // function that gets periodically called as long as the game is running (correct buttons have been pressed)
+   // - increases speed of the game
+   // - randomly decides the next button that is going to light up
    function gameLoop() {
       $(".buttons button").fadeTo(50, 0.5); // reset button opacity
 
+      // new interval for button light up is taken into use
       if (increaseSpeed) {
          increaseSpeed = false;
          clearTimeout(timer);
          timer = setInterval(gameLoop, myInterval);
       }
 
+      // randomly generates a number that'll determine which button will light up next
       var randNum;
       do {
          randNum = Math.floor((Math.random() * 4) + 1); // generates a random number between 1 and 4
       } while (sequence.length !== 0 && randNum === sequence[sequence.length - 1]); // to always light up different light than last time
 
-      sequence.push(randNum);
+      sequence.push(randNum); // adding button to the sequence of upcoming buttons
 
+      // lights up the next button that was just drawn
       switch (randNum) {
          case 1:
             $("#button1").fadeTo(50, 1);
@@ -156,11 +162,12 @@ $(document).ready( function() {
          case 4:
             $("#button4").fadeTo(50, 1);
             break;
-         default: // should not end up in here
       }
    }
 
    // the correct button was pressed -> game keeps running
+   // - updates the score
+   // - sets the new interval (not taken into use yet)
    function gameProceed() {
       index += 1;
       score += 1;
@@ -169,6 +176,7 @@ $(document).ready( function() {
       if (myInterval > MIN_INTERVAL) {
          myInterval *= INTERVAL_DECREASE_RATIO;
 
+         // if new interval would be less than specified minimum -> reverts to minimum
          if (myInterval < MIN_INTERVAL) {
             myInterval = MIN_INTERVAL;
          }
@@ -177,7 +185,7 @@ $(document).ready( function() {
       }
    }
 
-   
+   // adds the newest score into high scores and updates the order
    function updateHighScores() {
       var dateAndTime = new Date().toLocaleString("en-GB");
       scoresArr.push({score: score, date: dateAndTime});
@@ -187,12 +195,15 @@ $(document).ready( function() {
          return b.score - a.score || b.date.localeCompare(a.date);
       });
 
+      // only top 10 scores are being stored
       scoresArr = scoresArr.slice(0, 10);
 
+      // populating the high score table
       for (var i = 0; i < scoresArr.length; i++) {
          $("#row" + (i + 1) + "cell1").text(scoresArr[i].score);
          $("#row" + (i + 1) + "cell2").text(scoresArr[i].date);
 
+         // highlights the new score that was just added to the table
          if (scoresArr[i].score === score && scoresArr[i].date === dateAndTime)
          {
             prevScoreRow = i + 1;
@@ -203,6 +214,9 @@ $(document).ready( function() {
       postMessage(MessageType.SAVE);
    }
 
+   // checks if the game has been started and then:
+   // 1. correct button was pressed -> calls another function that handles the rest
+   // 2. wrong button was pressed -> finishes the game
    function buttonPressed(buttonNumber) {
       if (gameStarted) {
          if (sequence[index] === buttonNumber) {
@@ -210,7 +224,7 @@ $(document).ready( function() {
          }
          else { // Game Over!
             clearTimeout(timer);
-            $(".buttons button").fadeTo(1, 0.5);
+            $(".buttons button").fadeTo(1, 0.5); // resets button opacity
             $(".buttons button").css("font-size", "inherit");
             $(".menuButtons").show();
             $(".col-xs-5.collapse").collapse("show");
@@ -223,8 +237,9 @@ $(document).ready( function() {
       }
    }
 
+   // initializes and starts the game
    function startPressed() {
-      if (!gameStarted) { // redundant atm (button is hidden after pressing)
+      if (!gameStarted) {
 
          // initializing the game
          gameStarted = true;
@@ -251,6 +266,8 @@ $(document).ready( function() {
       startPressed();
    });
 
+   // - disables the settings button & expands settings view
+   // - enables the high score button & collapses high score view
    $("#buttonSettings").click( function() {
       $("#buttonSettings").attr("disabled", true);
       $("#buttonHighscores").attr("disabled", false);
@@ -259,6 +276,8 @@ $(document).ready( function() {
       $("#settings").collapse("show");
    });
 
+   // - disables the high score button & expands high score view
+   // - enables the settings button & collapses settings view
    $("#buttonHighscores").click( function() {
       $("#buttonHighscores").attr("disabled", true);
       $("#buttonSettings").attr("disabled", false);
@@ -278,6 +297,7 @@ $(document).ready( function() {
       }
    }
 
+   // saves the button layout specified by user
    $("#buttonSave").click( function() {
       var input = $("#reassign1").val().toUpperCase().charCodeAt(0);
       if (letterOrNumber(input))
@@ -332,7 +352,7 @@ $(document).ready( function() {
       postMessage(MessageType.SAVE);
    });
 
-   // Restore default keys
+   // Restores default keys
    $("#buttonRestore").click( function() {
       $("#reassign1").val("V");
       $("#reassign2").val("B");
@@ -374,7 +394,6 @@ $(document).ready( function() {
          case key5:
             startPressed();
             break;
-         default: // should not end up in here
       }
    });
 

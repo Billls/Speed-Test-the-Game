@@ -1,3 +1,4 @@
+/* buttons = 4 main push buttons that are used in the game */
 .buttons button {
    width: 100px;
    height: 100px;
@@ -10,6 +11,7 @@
    outline: 0;
 }
 
+/* container contains the whole game */
 .container {
    width: 820px;
    height: 820px;
