@@ -1,7 +1,20 @@
-/* jshint esversion: 6 */  // (for const)
+// Feel free to try out the game at:
+// https://speed-test-the-game.firebaseapp.com
 
 $(document).ready( function() {
-   "use strict";
+
+   // Initializing Firebase
+   var config = {
+   apiKey: "AIzaSyAm705nldrTOH-idb0HjTPSR5f5WE75qoE",
+   authDomain: "speed-test-the-game.firebaseapp.com",
+   databaseURL: "https://speed-test-the-game.firebaseio.com",
+   projectId: "speed-test-the-game",
+   storageBucket: "speed-test-the-game.appspot.com",
+   messagingSenderId: "307943789958"
+   };
+   firebase.initializeApp(config);
+   var firestore = firebase.firestore();
+   const docRef = firestore.doc("app/data");
 
    // introducing global variables
    var score;
@@ -21,111 +34,71 @@ $(document).ready( function() {
    var key4 = 77; // M
    var key5 = 75; // K
 
-   // shoddy enum substitute
-   const MessageType = {
-      ERROR: 0,
-      SCORE: 1,
-      SAVE: 2,
-      LOAD: 3,
-      LOAD_REQUEST: 4,
-      SETTINGS: 5
-   };
-
    // 820/300/0.99 -> max speed achieved on 100th (820*0.99^x = 300)
    const MAX_INTERVAL = 820; // maximum interval in ms
    const MIN_INTERVAL = 300; // minimum interval in ms
    const INTERVAL_DECREASE_RATIO = 0.99;
 
    // setting up the game at startup
-   postMessage(MessageType.LOAD_REQUEST);
+   loadData();
    $("#score").sevenSeg({ digits: 3, value: null });
    $("#highscores").collapse("show");
    $("#buttonHighscores").attr("disabled", true);
    $(".col-xs-5.collapse").collapse("show");
 
-   // sending messages to main window
-   function postMessage(messageType) {
-      var message;
 
-      switch (messageType) {
-         case MessageType.SCORE:
-            message = {
-               "messageType": "SCORE",
-               "score": score
-            };
-            // console.log("Submit: " + message.messageType + ", " + message.score); // for testing
-            break;
+   // loading the key layout and high scores from database
+   function loadData() {
+   	docRef.get().then(function (doc) {
+	      if (doc && doc.exists) {
+	      	if (doc.data().keyconfig != undefined) {
+		   	   key1 = doc.data().keyconfig[0];
+			      $("#reassign1").attr("placeholder", String.fromCharCode(key1));
+			      $("#button1").text(String.fromCharCode(key1));
 
-         case MessageType.SAVE:
-            message =  {
-               "messageType": "SAVE",
-               "gameState": {
-                  "keyConfig": [key1, key2, key3, key4, key5],
-                  "highScores": scoresArr
-               }
-            };
-            // console.log("Save: " + JSON.stringify(message.gameState)); // for testing
-            break;
+			      key2 = doc.data().keyconfig[1];
+			      $("#reassign2").attr("placeholder", String.fromCharCode(key2));
+			      $("#button2").text(String.fromCharCode(key2));
 
-         case MessageType.LOAD_REQUEST:
-            message = {
-               "messageType": "LOAD_REQUEST"
-            };
-            // console.log("Load request"); // for testing
-            // console.log("Requested frame size: 824x824px"); // for testing
-            break;
+			      key3 = doc.data().keyconfig[2];
+			      $("#reassign3").attr("placeholder", String.fromCharCode(key3));
+			      $("#button3").text(String.fromCharCode(key3));
 
-         case MessageType.SETTINGS:
-            message =  {
-               "messageType": "SETTING",
-               "options": {
-                  "width": 824, // in pixels
-                  "height": 824 // in pixels
-               }
-            };
-            break;
-      }
-      window.parent.postMessage(message, "*"); // common for all cases, hence outside the switch statement
+			      key4 = doc.data().keyconfig[3];
+			      $("#reassign4").attr("placeholder", String.fromCharCode(key4));
+			      $("#button4").text(String.fromCharCode(key4));
+
+			      key5 = doc.data().keyconfig[4];
+			      $("#reassign5").attr("placeholder", String.fromCharCode(key5));
+			      $("#buttonStart").text("Start (" + String.fromCharCode(key5) + ")");
+		   	}
+
+		   	if (doc.data().highscores != undefined) {
+			      scoresArr = doc.data().highscores;
+
+			      // populating the high score table
+			      for (var i = 0; i < scoresArr.length; i++) {
+			         $("#row" + (i + 1) + "cell1").text(scoresArr[i].score);
+			         $("#row" + (i + 1) + "cell2").text(scoresArr[i].date);
+			      }
+		   	}
+	      }
+	   }).catch(function (error) {
+	      console.log("An error has occurred: ", error);
+	   });
+   };
+
+
+   // saves the data into database
+   function save() {
+   	docRef.set({
+         highscores: scoresArr,
+         keyconfig: [key1, key2, key3, key4, key5]
+      }).catch(function (error) {
+         console.log("An error has occurred: ", error);
+      });
    }
 
-   // loading the key layout and high scores from a saved game
-   window.addEventListener("message", function(event) {
-      if(event.data.messageType === "LOAD") {
-
-         key1 = event.data.gameState.keyConfig[0];
-         $("#reassign1").attr("placeholder", String.fromCharCode(key1));
-         $("#button1").text(String.fromCharCode(key1));
-
-         key2 = event.data.gameState.keyConfig[1];
-         $("#reassign2").attr("placeholder", String.fromCharCode(key2));
-         $("#button2").text(String.fromCharCode(key2));
-
-         key3 = event.data.gameState.keyConfig[2];
-         $("#reassign3").attr("placeholder", String.fromCharCode(key3));
-         $("#button3").text(String.fromCharCode(key3));
-
-         key4 = event.data.gameState.keyConfig[3];
-         $("#reassign4").attr("placeholder", String.fromCharCode(key4));
-         $("#button4").text(String.fromCharCode(key4));
-
-         key5 = event.data.gameState.keyConfig[4];
-         $("#reassign5").attr("placeholder", String.fromCharCode(key5));
-         $("#buttonStart").text("Start (" + String.fromCharCode(key5) + ")");
-
-         scoresArr = event.data.gameState.highScores;
-
-         // populating the high score table
-         for (var i = 0; i < scoresArr.length; i++) {
-            $("#row" + (i + 1) + "cell1").text(scoresArr[i].score);
-            $("#row" + (i + 1) + "cell2").text(scoresArr[i].date);
-         }
-
-      // forwarding the error message to alert pop-up
-      } else if (event.data.messageType === "ERROR") {
-         alert(event.data.info);
-      }
-      postMessage(MessageType.SETTINGS);
-   });
 
    // function that gets periodically called as long as the game is running (correct buttons have been pressed)
    // - increases speed of the game
@@ -165,6 +138,7 @@ $(document).ready( function() {
       }
    }
 
+
    // the correct button was pressed -> game keeps running
    // - updates the score
    // - sets the new interval (not taken into use yet)
@@ -184,6 +158,7 @@ $(document).ready( function() {
          increaseSpeed = true;
       }
    }
+
 
    // adds the newest score into high scores and updates the order
    function updateHighScores() {
@@ -210,9 +185,11 @@ $(document).ready( function() {
             $(".row" + prevScoreRow).addClass("highlighted");
          }
       }
-      postMessage(MessageType.SCORE);
-      postMessage(MessageType.SAVE);
+
+      // saves the updated high score list into database
+      save();
    }
+
 
    // checks if the game has been started and then:
    // 1. correct button was pressed -> calls another function that handles the rest
@@ -236,6 +213,7 @@ $(document).ready( function() {
          }
       }
    }
+
 
    // initializes and starts the game
    function startPressed() {
@@ -262,6 +240,7 @@ $(document).ready( function() {
       }
    }
 
+
    $("#buttonStart").click( function() {
       startPressed();
    });
@@ -286,6 +265,7 @@ $(document).ready( function() {
       $("#highscores").collapse("show");
    });
 
+
    // 0-9 or A-Z
    function letterOrNumber(input) {
       if ((48 <= input && input <= 57) || (65 <= input && input <= 90))
@@ -296,8 +276,9 @@ $(document).ready( function() {
          return false;
       }
    }
+   
 
-   // saves the button layout specified by user
+   // changes the key configuration to one specified by user
    $("#buttonSave").click( function() {
       var input = $("#reassign1").val().toUpperCase().charCodeAt(0);
       if (letterOrNumber(input))
@@ -349,8 +330,10 @@ $(document).ready( function() {
          $("#reassign5").val("");
       }
 
-      postMessage(MessageType.SAVE);
+      // saves the updated key configuration into database
+      save();
    });
+
 
    // Restores default keys
    $("#buttonRestore").click( function() {
@@ -360,6 +343,7 @@ $(document).ready( function() {
       $("#reassign4").val("M");
       $("#reassign5").val("K");
    });
+
 
    $("#button1").click( function() {
       buttonPressed(1);
@@ -376,6 +360,7 @@ $(document).ready( function() {
    $("#button4").click( function() {
       buttonPressed(4);
    });
+
 
    $(document).keydown(function(e) {
       switch (e.keyCode) {
