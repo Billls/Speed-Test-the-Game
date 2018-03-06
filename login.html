@@ -1,0 +1,45 @@
+<!Doctype html>
+<html lang="en">
+
+<head>
+   <title>Speed Test the Game Login</title>
+   <meta charset="UTF-8">
+
+   <!-- Firebase -->
+   <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase-app.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase-auth.js"></script>
+
+   <!-- FirebaseUI for authentication -->
+   <script src="https://cdn.firebase.com/libs/firebaseui/2.6.2/firebaseui.js"></script>
+   <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.6.2/firebaseui.css" />
+
+   <script>
+      // Initializing Firebase
+      var config = {
+         apiKey: "AIzaSyAm705nldrTOH-idb0HjTPSR5f5WE75qoE",
+         authDomain: "speed-test-the-game.firebaseapp.com",
+         databaseURL: "https://speed-test-the-game.firebaseio.com",
+         projectId: "speed-test-the-game",
+         storageBucket: "speed-test-the-game.appspot.com",
+         messagingSenderId: "307943789958"
+      };
+      firebase.initializeApp(config);
+   </script>
+
+   <script type="text/javascript">
+      // FirebaseUI config.
+      var uiConfig = {
+         signInSuccessUrl: 'index.html',
+         signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID]
+      };
+
+      // Initialize the FirebaseUI Widget using Firebase.
+      var ui = new firebaseui.auth.AuthUI(firebase.auth());
+      // The start method will wait until the DOM is loaded.
+      ui.start('#firebaseui-auth-container', uiConfig);
+    </script>
+</head>
+<body>
+    <div id="firebaseui-auth-container"></div>
+</body>
+</html>

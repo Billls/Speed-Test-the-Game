@@ -16,12 +16,12 @@
          integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
          crossorigin="anonymous"></script>
 
-   <!-- Bootstrap - Latest compiled and minified CSS -->
+   <!-- Bootstrap - Compiled and minified CSS -->
    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
          crossorigin="anonymous">
 
-   <!-- Bootstrap - Latest compiled and minified JavaScript -->
+   <!-- Bootstrap - Compiled and minified JavaScript -->
    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
          integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
          crossorigin="anonymous"></script>
@@ -33,12 +33,16 @@
    <!-- use permitted by MIT license, more details in the file -->
    <script type="text/javascript" src="sevenSeg.js"></script>
 
-   <script type="text/javascript" src="speed_test_the_game.js"></script>
-
    <!-- Firebase -->
    <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase-app.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase-auth.js"></script>
    <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase-firestore.js"></script>
 
+   <!-- FirebaseUI for authentication -->
+   <script src="https://cdn.firebase.com/libs/firebaseui/2.6.2/firebaseui.js"></script>
+   <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.6.2/firebaseui.css" />
+
+   <script type="text/javascript" src="speed_test_the_game.js"></script>
    <link rel="stylesheet" type="text/css" href="speed_test_the_game.css">
 </head>
 
@@ -76,7 +80,11 @@
             <button type="button" class="menuButtons" id="buttonSettings" data-toggle="collapse" data-target="#settings">Settings</button>
             <button type="button" class="menuButtons" id="buttonHighscores" data-toggle="collapse" data-target="#highscores">High Scores</button>
             <button type="button" class="menuButtons" id="buttonStart">Start (K)</button>
-
+            
+            <button type="button" class="loginButtons" id="buttonLogin">Log In</button>
+            <button type="button" class="loginButtons" id="buttonLogout">Log Out</button>
+            <button type="button" class="loginButtons" id="buttonDelete">Del Acc</button>
+            
             <form class="collapse" id="settings">
                <div class="form-group col-xs-12" id="textFields"><br>
 
@@ -103,7 +111,7 @@
             </form>
 
             <div class="collapse" id="highscores">
-               <h2>Personal <span id="lenny"></span> High Scores</h2>
+               <h2>High <span id="lenny"></span> Scores</h2>
                <table class="table table-condensed">
                   <thead>
                      <tr>
@@ -167,6 +175,9 @@
                </table>
             </div>
          </div>
+
+         <p class="collapse" id="userInfo"></p>
+         <h3 class="collapse" id="personalBest">Personal Best:</h3>
 
          <div class="col-xs-5 collapse">
             <p class="well" id="description">

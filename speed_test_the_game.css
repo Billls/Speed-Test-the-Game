@@ -76,10 +76,15 @@ h2 {
 #description {
    background-color: #E9E9E9;
    border-color: black;
+   padding-top: 20px;
 }
 
-.col-xs-5 {
-   padding-top: 90px;
+#userInfo {
+   text-align: center;
+}
+
+#personalBest {
+   padding-bottom: 20px;
 }
 
 #button1 {

@@ -4,17 +4,17 @@
 $(document).ready( function() {
 
    // Initializing Firebase
-   var config = {
-   apiKey: "AIzaSyAm705nldrTOH-idb0HjTPSR5f5WE75qoE",
-   authDomain: "speed-test-the-game.firebaseapp.com",
-   databaseURL: "https://speed-test-the-game.firebaseio.com",
-   projectId: "speed-test-the-game",
-   storageBucket: "speed-test-the-game.appspot.com",
-   messagingSenderId: "307943789958"
-   };
-   firebase.initializeApp(config);
-   var firestore = firebase.firestore();
-   const docRef = firestore.doc("app/data");
+   firebase.initializeApp({
+      apiKey: "AIzaSyAm705nldrTOH-idb0HjTPSR5f5WE75qoE",
+      authDomain: "speed-test-the-game.firebaseapp.com",
+      databaseURL: "https://speed-test-the-game.firebaseio.com",
+      projectId: "speed-test-the-game",
+      storageBucket: "speed-test-the-game.appspot.com",
+      messagingSenderId: "307943789958"
+   });
+
+   // Initialize Cloud Firestore through Firebase
+   var db = firebase.firestore();
 
    // introducing global variables
    var score;
@@ -24,8 +24,8 @@ $(document).ready( function() {
    var myInterval;
    var gameStarted;
    var increaseSpeed;
-   var scoresArr = [];
    var prevScoreRow = 0;
+   var unLoggedPersonalHigh = 0;
 
    // Keyboard defaults
    var key1 = 86; // V
@@ -40,64 +40,42 @@ $(document).ready( function() {
    const INTERVAL_DECREASE_RATIO = 0.99;
 
    // setting up the game at startup
-   loadData();
+   loadData("");
    $("#score").sevenSeg({ digits: 3, value: null });
    $("#highscores").collapse("show");
    $("#buttonHighscores").attr("disabled", true);
    $(".col-xs-5.collapse").collapse("show");
+   $("#userInfo").collapse("show");
+   $("#personalBest").collapse("show");
 
 
-   // loading the key layout and high scores from database
-   function loadData() {
-   	docRef.get().then(function (doc) {
-	      if (doc && doc.exists) {
-	      	if (doc.data().keyconfig != undefined) {
-		   	   key1 = doc.data().keyconfig[0];
-			      $("#reassign1").attr("placeholder", String.fromCharCode(key1));
-			      $("#button1").text(String.fromCharCode(key1));
-
-			      key2 = doc.data().keyconfig[1];
-			      $("#reassign2").attr("placeholder", String.fromCharCode(key2));
-			      $("#button2").text(String.fromCharCode(key2));
-
-			      key3 = doc.data().keyconfig[2];
-			      $("#reassign3").attr("placeholder", String.fromCharCode(key3));
-			      $("#button3").text(String.fromCharCode(key3));
-
-			      key4 = doc.data().keyconfig[3];
-			      $("#reassign4").attr("placeholder", String.fromCharCode(key4));
-			      $("#button4").text(String.fromCharCode(key4));
-
-			      key5 = doc.data().keyconfig[4];
-			      $("#reassign5").attr("placeholder", String.fromCharCode(key5));
-			      $("#buttonStart").text("Start (" + String.fromCharCode(key5) + ")");
-		   	}
-
-		   	if (doc.data().highscores != undefined) {
-			      scoresArr = doc.data().highscores;
-
-			      // populating the high score table
-			      for (var i = 0; i < scoresArr.length; i++) {
-			         $("#row" + (i + 1) + "cell1").text(scoresArr[i].score);
-			         $("#row" + (i + 1) + "cell2").text(scoresArr[i].date);
-			      }
-		   	}
-	      }
-	   }).catch(function (error) {
-	      console.log("An error has occurred: ", error);
-	   });
+   // loading high scores from database
+   function loadData(timecode) {
+      if (db.collection("highscores") != undefined)
+      {
+         db.collection("highscores").orderBy("score", "desc").limit(10).get()
+         .then(function(querySnapshot) {
+            var i = 1;
+            querySnapshot.forEach(function(doc) {
+               // doc.data() is never undefined for query doc snapshots
+               console.log(doc.id, " => ", doc.data());
+               $("#row" + (i) + "cell1").text(doc.data().score);
+               $("#row" + (i) + "cell2").text(doc.data().time);
+               
+                  
+               // highlights the new score that was just added to the table
+               if (doc.data().time === timecode)
+               {
+                  prevScoreRow = i;
+                  $(".row" + prevScoreRow).addClass("highlighted");
+               }
+               i += 1;
+            });
+         }).catch(function(error) {
+            console.log("Error getting documents: ", error);
+         });
+      }
    };
-
-
-   // saves the data into database
-   function save() {
-   	docRef.set({
-         highscores: scoresArr,
-         keyconfig: [key1, key2, key3, key4, key5]
-      }).catch(function (error) {
-         console.log("An error has occurred: ", error);
-      });
-   }
 
 
    // function that gets periodically called as long as the game is running (correct buttons have been pressed)
@@ -162,32 +140,46 @@ $(document).ready( function() {
 
    // adds the newest score into high scores and updates the order
    function updateHighScores() {
+
+      // saves the score into database
       var dateAndTime = new Date().toLocaleString("en-GB");
-      scoresArr.push({score: score, date: dateAndTime});
+      var user = firebase.auth().currentUser;
 
-      // sorts by score into descending order and with equals favors the newest one
-      scoresArr.sort(function(a, b) {
-         return b.score - a.score || b.date.localeCompare(a.date);
-      });
+      if (user != null) {
+         db.collection("highscores").add({
+            score: score,
+            time: dateAndTime,
+            user: user.uid
+         })
+         .then(function(docRef) {
+         console.log("Document written with ID: ", docRef.id);
+         })
+         .catch(function(error) {
+            console.error("Error adding document: ", error);
+         });
 
-      // only top 10 scores are being stored
-      scoresArr = scoresArr.slice(0, 10);
+         personalHigh(user);
 
-      // populating the high score table
-      for (var i = 0; i < scoresArr.length; i++) {
-         $("#row" + (i + 1) + "cell1").text(scoresArr[i].score);
-         $("#row" + (i + 1) + "cell2").text(scoresArr[i].date);
+      } else {
+         db.collection("highscores").add({
+            score: score,
+            time: dateAndTime
+         })
+         .then(function(docRef) {
+         console.log("Document written with ID: ", docRef.id);
+         })
+         .catch(function(error) {
+            console.error("Error adding document: ", error);
+         });
 
-         // highlights the new score that was just added to the table
-         if (scoresArr[i].score === score && scoresArr[i].date === dateAndTime)
-         {
-            prevScoreRow = i + 1;
-            $(".row" + prevScoreRow).addClass("highlighted");
+         if (unLoggedPersonalHigh < score) {
+            unLoggedPersonalHigh = score;
+            $("#personalBest").text("Personal Best: " + unLoggedPersonalHigh);
          }
       }
 
-      // saves the updated high score list into database
-      save();
+      // updates the score board
+      loadData(String(dateAndTime));
    }
 
 
@@ -204,7 +196,10 @@ $(document).ready( function() {
             $(".buttons button").fadeTo(1, 0.5); // resets button opacity
             $(".buttons button").css("font-size", "inherit");
             $(".menuButtons").show();
+            $(".loginButtons").css('visibility','visible');
             $(".col-xs-5.collapse").collapse("show");
+            $("#userInfo").collapse("show");
+            $("#personalBest").collapse("show");
             $("#lenny").text("( ͡° ͜ʖ ͡°)");
             $("#highscores").collapse("show");
             $("#buttonHighscores").attr("disabled", true);
@@ -231,6 +226,7 @@ $(document).ready( function() {
          $("#buttonSettings").attr("disabled", false);
          $(".collapse").collapse("hide");
          $(".menuButtons").hide();
+         $(".loginButtons").css('visibility','hidden');
 
          $(".buttons button").css("font-size", "0");
          $("#scoreHeader").css("color", "red");
@@ -243,6 +239,36 @@ $(document).ready( function() {
 
    $("#buttonStart").click( function() {
       startPressed();
+   });
+
+   $("#buttonLogin").click( function() {
+      var width = 400; // login window width in pixels
+      var height = 500; // login window height in pixels
+
+      var positionLeft = $(document).width()/2 - width/2;
+      var positionTop = $(document).height()/2 - height/2;
+
+      window.open('login.html', 'LoginWindow',
+         'width='+width+',height='+height+',left='+positionLeft+',top='+positionTop);
+   });
+
+   $("#buttonLogout").click( function() {
+      firebase.auth().signOut();
+   });
+
+   $("#buttonDelete").click( function() {
+      firebase.auth().currentUser.delete().catch(function(error) {
+       if (error.code == 'auth/requires-recent-login') {
+         // The user's credential is too old, new login is needed.
+         firebase.auth().signOut().then(function() {
+           // The timeout allows the message to be displayed after the UI has
+           // changed to the signed out state.
+           setTimeout(function() {
+             alert('Please sign in again to delete your account.');
+           }, 1);
+         });
+       }
+     });
    });
 
    // - disables the settings button & expands settings view
@@ -330,8 +356,50 @@ $(document).ready( function() {
          $("#reassign5").val("");
       }
 
-      // saves the updated key configuration into database
-      save();
+      // saves the updated key configuration into database IF user is logged in
+      var user = firebase.auth().currentUser;
+
+      if (user != null) {
+
+         db.collection("settings").where("user", "==", user.uid).get()
+         .then(function(querySnapshot) {
+            if (querySnapshot.empty) {
+               // player doesn't have any previous saves
+               db.collection("settings").add({
+                  keyconfig: [key1, key2, key3, key4, key5],
+                  user: user.uid
+               })
+               .then(function(docRef) {
+                  console.log("Document written with ID: ", docRef.id);
+               })
+               .catch(function(error) {
+                  console.error("Error adding document: ", error);
+               });
+            } else {
+               db.collection("settings").where("user", "==", user.uid).get()
+               .then(function(querySnapshot) {
+                  querySnapshot.forEach(function(doc) {
+                     // player has a previous save -> modify it
+                     doc.ref.set({
+                        keyconfig: [key1, key2, key3, key4, key5],
+                        user: user.uid
+                     })
+                     .then(function(docRef) {
+                        console.log("Document (over)written with ID: ", docRef.id);
+                     })
+                     .catch(function(error) {
+                        console.error("Error adding document: ", error);
+                     });
+                  });
+               });
+            }
+         }).catch(function(error) {
+            console.log("Error getting documents: ", error);
+         });
+
+      } else {
+         console.log("User not logged in, settings not saved.");
+      } 
    });
 
 
@@ -380,6 +448,87 @@ $(document).ready( function() {
             startPressed();
             break;
       }
+   });
+
+
+   // searches the highest score for currently logged in player from the database
+   function personalHigh(user) {
+      db.collection("highscores").where("user", "==", user.uid).orderBy("score", "desc").limit(1).get()
+      .then(function(querySnapshot) {
+         querySnapshot.forEach(function(doc) {
+               console.log("Personal Best: " + doc.data().score);
+               $("#personalBest").text("Personal Best: " + doc.data().score);
+               return;
+         });
+      }).catch(function(error) {
+         console.log("Error getting documents: ", error);
+      });
+   }
+   
+
+   // loads user specific settings and high scores + changes UI to logged in mode
+   function handleSignedInUser(user) {
+      $("#userInfo").text("Logged in as: " + user.displayName);
+      $("#buttonLogout").show();
+      $("#buttonDelete").show();
+      $("#buttonLogin").hide();
+
+      db.collection("settings").where("user", "==", user.uid).limit(1).get()
+      .then(function(querySnapshot) {
+         querySnapshot.forEach(function(doc) {
+            if (doc.data().keyconfig != undefined) {
+               console.log("Settings loaded: " + doc.data().keyconfig);
+
+               key1 = doc.data().keyconfig[0];
+               $("#reassign1").attr("placeholder", String.fromCharCode(key1));
+               $("#button1").text(String.fromCharCode(key1));
+
+               key2 = doc.data().keyconfig[1];
+               $("#reassign2").attr("placeholder", String.fromCharCode(key2));
+               $("#button2").text(String.fromCharCode(key2));
+
+               key3 = doc.data().keyconfig[2];
+               $("#reassign3").attr("placeholder", String.fromCharCode(key3));
+               $("#button3").text(String.fromCharCode(key3));
+
+               key4 = doc.data().keyconfig[3];
+               $("#reassign4").attr("placeholder", String.fromCharCode(key4));
+               $("#button4").text(String.fromCharCode(key4));
+
+               key5 = doc.data().keyconfig[4];
+               $("#reassign5").attr("placeholder", String.fromCharCode(key5));
+               $("#buttonStart").text("Start (" + String.fromCharCode(key5) + ")");
+            }
+         });
+      }).catch(function(error) {
+         console.log("Error getting documents: ", error);
+      });
+
+      personalHigh(user);     
+   }
+
+   // resets the game to default settings, removing any customizations made by authenticated player
+   function handleSignedOutUser() {
+      $("#userInfo").text("Not logged in. (key configuration and personal high score won't be saved)");
+      $("#buttonLogout").hide();
+      $("#buttonDelete").hide();
+      $("#buttonLogin").show();
+
+      $("#personalBest").text("Personal Best:");
+      $("#buttonRestore").click();
+      $("#buttonSave").click();
+      unLoggedPersonalHigh = 0;
+   }
+
+   // Listen to change in auth state so it displays the correct UI for when
+   // the user is signed in or not.
+   firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+         handleSignedInUser(user);
+      } else {
+         handleSignedOutUser();
+      }
+      
    });
 
 });
